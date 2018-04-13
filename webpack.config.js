@@ -24,6 +24,19 @@ const PATHS = {
   DIST: Path.resolve('client/dist')
 };
 
+function customResolve(env, paths) {
+  const { modules, alias } = resolveJS(env, paths);
+  return Object.assign(
+    {},
+    {
+      modules: modules.concat([
+        'vendor/silverstripe/admin/client/src',
+      ]),
+      alias,
+    }
+  );
+}
+
 cssRules = moduleCSS(ENV, PATHS);
 // Specify the assets rule and remove svg. Currently using index, which is not optimal…
 cssRules.rules[2].test = /\.(png|gif|jpe?g)$/;
@@ -40,14 +53,15 @@ const config = [
   {
     name: 'js',
     entry: {
-      main: `${PATHS.SRC}/boot/index.js`
+      main: `${PATHS.SRC}/boot/index.js`,
+      'FocusPointField.entwine': `${PATHS.SRC}/entwine/FocusPointFieldEntwine.jsx`,
     },
     output: {
       path: PATHS.DIST,
       filename: 'js/[name].js',
     },
     devtool: (ENV !== 'production') ? 'source-map' : '',
-    resolve: Object.assign({}, resolveJS(ENV, PATHS), {extensions: ['.json', '.js', '.jsx']}),
+    resolve: Object.assign({}, customResolve(ENV, PATHS), {extensions: ['.json', '.js', '.jsx']}),
     externals: externalJS(ENV, PATHS),
     module: moduleJS(ENV, PATHS),
     plugins: pluginJS(ENV, PATHS),
